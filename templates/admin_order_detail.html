@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.id }} — Admin{% endblock %}
+
+{% block content %}
+<section class="admin container">
+    <a class="continue" href="{{ url_for('admin.admin_orders') }}">← All Orders</a>
+
+    <div class="order-detail-layout">
+        <!-- Items + shipping -->
+        <div class="order-detail-main">
+            <div class="order-detail-head">
+                <h1 class="cart-title">Order #{{ order.id }}</h1>
+                <span class="status-badge status-{{ order.status }}">{{ order.status.title() }}</span>
+            </div>
+            <p class="order-placed">Placed on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+
+            <h2 class="checkout-h2">Items</h2>
+            <div class="order-items">
+                {% for it in items %}
+                <div class="order-item">
+                    <a class="oi-thumb" href="{{ url_for('product.product_detail', product_id=it.product.id) }}">
+                        <img src="{{ product_image_url(it.product) }}" alt="{{ it.product.name }}">
+                    </a>
+                    <div class="oi-info">
+                        <a class="oi-name" href="{{ url_for('product.product_detail', product_id=it.product.id) }}">{{ it.product.name }}</a>
+                        <span class="oi-meta">{{ it.price | money }} × {{ it.quantity }}</span>
+                    </div>
+                    <div class="oi-total">{{ (it.price * it.quantity) | money }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <h2 class="checkout-h2">Customer &amp; Shipping</h2>
+            <div class="addr-block">
+                <p class="addr-name">{{ order.full_name }}</p>
+                <p>{{ order.email }}{% if order.phone %} · {{ order.phone }}{% endif %}</p>
+                <p>{{ order.address_line1 }}</p>
+                {% if order.address_line2 %}<p>{{ order.address_line2 }}</p>{% endif %}
+                <p>{{ order.city }}{% if order.state %}, {{ order.state }}{% endif %} {{ order.postal_code }}</p>
+                <p>{{ order.country }}</p>
+                <p class="addr-pay"><strong>Payment:</strong> {{ order.payment_method }}</p>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <aside class="cart-summary">
+            <h2>Order Summary</h2>
+            <div class="summary-rows">
+                <div class="srow"><span>Subtotal</span><span>{{ order.subtotal | money }}</span></div>
+                {% if order.discount > 0 %}
+                <div class="srow discount">
+                    <span>Discount{% if order.coupon_code %} ({{ order.coupon_code }}){% endif %}</span>
+                    <span>−{{ order.discount | money }}</span>
+                </div>
+                {% endif %}
+                <div class="srow"><span>Shipping</span><span>{{ 'Free' if order.shipping == 0 else (order.shipping | money) }}</span></div>
+                <div class="srow"><span>Tax</span><span>{{ order.tax | money }}</span></div>
+                <div class="srow total"><span>Grand Total</span><span>{{ order.total | money }}</span></div>
+            </div>
+            <a class="btn btn-outline btn-block" href="{{ url_for('admin.admin_orders') }}">Back to Orders</a>
+        </aside>
+    </div>
+</section>
+{% endblock %}

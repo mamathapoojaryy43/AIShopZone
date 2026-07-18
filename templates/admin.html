@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Admin — AIShopzone{% endblock %}
+
+{% block content %}
+<section class="admin container">
+    <div class="admin-head">
+        <div>
+            <h1 class="cart-title">Admin Dashboard</h1>
+            <p class="muted">Store overview and management</p>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('admin.products') }}">Manage Products</a>
+    </div>
+
+    <div class="admin-stats">
+        <div class="stat-card">
+            <span class="stat-label">Products</span>
+            <strong class="stat-value">{{ product_count }}</strong>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Orders</span>
+            <strong class="stat-value">{{ order_count }}</strong>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Customers</span>
+            <strong class="stat-value">{{ user_count }}</strong>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Revenue (paid)</span>
+            <strong class="stat-value">{{ revenue | money }}</strong>
+        </div>
+    </div>
+
+    <div class="admin-cols">
+        <div class="admin-panel">
+            <h2 class="section-title">Recent Orders</h2>
+            {% if recent_orders %}
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>#</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for o in recent_orders %}
+                        <tr>
+                            <td><a href="{{ url_for('admin.admin_order_detail', order_id=o.id) }}">#{{ o.id }}</a></td>
+                            <td>{{ o.full_name or '—' }}</td>
+                            <td>{{ o.created_at.strftime('%b %d, %Y') }}</td>
+                            <td>{{ o.total | money }}</td>
+                            <td><span class="status-badge status-{{ o.status }}">{{ o.status.title() }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="muted">No orders yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="admin-panel">
+            <h2 class="section-title">Low Stock</h2>
+            {% if low_stock %}
+            <ul class="admin-list">
+                {% for p in low_stock %}
+                <li>
+                    <span>{{ p.name }}</span>
+                    <span class="badge badge-out">{{ p.stock }} left</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="muted">Everything is well stocked.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

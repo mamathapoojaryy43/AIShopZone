@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% from "macros.html" import product_card %}
+
+{% block title %}{{ product.name }} — AIShopzone{% endblock %}
+
+{% block content %}
+<section class="pdp container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{{ url_for('product.index') }}">Home</a> /
+        <a href="{{ url_for('product.products') }}">Shop</a> /
+        <span>{{ product.category }}</span>
+    </nav>
+
+    <div class="pdp-grid">
+        <!-- ============ GALLERY ============ -->
+        <div class="pdp-gallery">
+            <div class="gallery-main">
+                <img id="galleryMain" src="{{ gallery[0] }}" alt="{{ product.name }}">
+                {% if product.stock and product.stock > 0 %}
+                    <span class="badge badge-in">In Stock</span>
+                {% else %}
+                    <span class="badge badge-out">Sold Out</span>
+                {% endif %}
+            </div>
+            <div class="gallery-thumbs">
+                {% for img in gallery %}
+                <button class="thumb {% if loop.first %}active{% endif %}" data-src="{{ img }}">
+                    <img src="{{ img }}" alt="{{ product.name }} view {{ loop.index }}">
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ============ STICKY PURCHASE ============ -->
+        <div class="pdp-buy">
+            <span class="pdp-cat">{{ product.category }}</span>
+            <h1 class="pdp-name">{{ product.name }}</h1>
+
+            <div class="pdp-rating">
+                <span class="stars" style="--p:{{ (product.rating/5*100)|round }}%"></span>
+                <strong>{{ '%.1f' % product.rating }}</strong>
+                <span class="muted">· {{ rating_summary.count }} reviews</span>
+            </div>
+
+            <div class="pdp-price">{{ product.price | money }}</div>
+
+            <p class="pdp-stock {% if product.stock and product.stock > 0 %}in{% else %}out{% endif %}">
+                {% if product.stock and product.stock > 0 %}
+                    ✓ In stock{% if product.stock <= 10 %} — only {{ product.stock }} left{% endif %}
+                {% else %}✕ Out of stock{% endif %}
+            </p>
+
+            <p class="pdp-desc">{{ product.description }}</p>
+
+            <div class="pdp-actions">
+                <div class="qty">
+                    <button type="button" class="qty-btn" id="qtyMinus" aria-label="Decrease">−</button>
+                    <input type="number" id="qtyInput" value="1" min="1" max="{{ product.stock or 1 }}">
+                    <button type="button" class="qty-btn" id="qtyPlus" aria-label="Increase">+</button>
+                </div>
+                <button class="btn btn-primary btn-lg add-cart" data-product="{{ product.id }}">Add to Cart</button>
+            </div>
+
+            <div class="pdp-secondary">
+                <button class="btn btn-outline btn-lg buy-now" data-product="{{ product.id }}">Buy Now</button>
+                <button class="icon-btn wishlist-btn lg{% if product.id in wishlist_ids %} active{% endif %}" data-product="{{ product.id }}" aria-label="{{ 'Remove from' if product.id in wishlist_ids else 'Add to' }} wishlist" title="{{ 'Remove from' if product.id in wishlist_ids else 'Add to' }} wishlist" aria-pressed="{{ 'true' if product.id in wishlist_ids else 'false' }}">
+                    <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                </button>
+            </div>
+
+            <ul class="pdp-perks">
+                <li>🚚 Free shipping over ₹499</li>
+                <li>↩️ 30-day easy returns</li>
+                <li>🔒 Secure checkout</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============ REVIEWS ============ -->
+    <section class="pdp-section">
+        <h2 class="section-title">Customer Reviews</h2>
+        <div class="reviews-head">
+            <div class="reviews-score">
+                <span class="big">{{ rating_summary.avg }}</span>
+                <span class="stars" style="--p:{{ (rating_summary.avg/5*100)|round }}%"></span>
+                <span class="muted">{{ rating_summary.count }} reviews</span>
+            </div>
+            <div class="reviews-bars">
+                {% for s in [5,4,3,2,1] %}
+                <div class="bar-row">
+                    <span>{{ s }}★</span>
+                    <span class="bar"><span style="width:{{ (rating_summary.dist[s] / rating_summary.count * 100)|round }}%"></span></span>
+                    <span class="muted">{{ rating_summary.dist[s] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="review-list">
+            {% for r in reviews %}
+            <div class="review">
+                <div class="review-top">
+                    <span class="avatar">{{ r.author[:1] }}</span>
+                    <div>
+                        <strong>{{ r.author }}</strong>
+                        <div class="stars sm" style="--p:{{ (r.rating/5*100)|round }}%"></span></div>
+                    </div>
+                    <span class="muted review-date">{{ r.date }}</span>
+                </div>
+                <h4>{{ r.title }}</h4>
+                <p>{{ r.comment }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ============ RECOMMENDED FOR YOU ============ -->
+    {% if recommendations %}
+    <section class="pdp-section">
+        <h2 class="section-title">Recommended For You</h2>
+        <div class="product-grid">
+            {% for p in recommendations %}{{ product_card(p) }}{% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ============ RECENTLY VIEWED ============ -->
+    {% if recently_viewed %}
+    <section class="pdp-section">
+        <h2 class="section-title">Recently Viewed</h2>
+        <div class="product-grid">
+            {% for p in recently_viewed %}{{ product_card(p) }}{% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ============ CUSTOMERS ALSO BOUGHT ============ -->
+    {% if related %}
+    <section class="pdp-section">
+        <h2 class="section-title">Customers Also Bought</h2>
+        <div class="product-grid">
+            {% for p in related %}{{ product_card(p) }}{% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Gallery thumbnail switching
+    document.querySelectorAll(".thumb").forEach(function (t) {
+        t.addEventListener("click", function () {
+            document.getElementById("galleryMain").src = t.getAttribute("data-src");
+            document.querySelectorAll(".thumb").forEach(function (x) { x.classList.remove("active"); });
+            t.classList.add("active");
+        });
+    });
+
+    // Quantity selector
+    var qty = document.getElementById("qtyInput");
+    document.getElementById("qtyMinus").addEventListener("click", function () {
+        var v = parseInt(qty.value, 10) || 1; if (v > 1) qty.value = v - 1;
+    });
+    document.getElementById("qtyPlus").addEventListener("click", function () {
+        var v = parseInt(qty.value, 10) || 1;
+        var max = parseInt(qty.max, 10) || 999;
+        if (v < max) qty.value = v + 1;
+    });
+</script>
+{% endblock %}

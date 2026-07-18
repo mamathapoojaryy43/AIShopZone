@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile — AIShopzone{% endblock %}
+
+{% block content %}
+<section class="profile container">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('product.index') }}">Home</a> / <span>My Profile</span>
+    </nav>
+
+    <h1 class="cart-title">My Profile</h1>
+
+    <div class="profile-layout">
+        <!-- Account details -->
+        <div class="profile-main">
+            <div class="profile-card checkout-card">
+                <div class="profile-head">
+                    <div class="avatar avatar-lg">{{ current_user.name[:1] }}</div>
+                    <div>
+                        <h2 class="checkout-h2" style="margin:0;">{{ current_user.name }}</h2>
+                        <p class="muted">{{ current_user.email }}</p>
+                    </div>
+                </div>
+                <div class="profile-meta">
+                    <div><span class="oc-label">Member since</span>
+                        <strong>{{ current_user.created_at.strftime('%b %d, %Y') }}</strong></div>
+                    <div><span class="oc-label">Account</span>
+                        <strong>{% if is_admin %}Administrator{% else %}Shopper{% endif %}</strong></div>
+                </div>
+                <div class="profile-actions">
+                    <a class="btn btn-outline" href="{{ url_for('auth.profile') if is_admin else url_for('order.orders') }}">
+                        {% if is_admin %}Open Admin{% else %}My Orders{% endif %}
+                    </a>
+                    <a class="btn btn-light" href="{{ url_for('auth.logout') }}">Log out</a>
+                </div>
+            </div>
+
+            <h2 class="section-title">Recent Orders</h2>
+            {% if recent_orders %}
+            <div class="order-grid">
+                {% for order in recent_orders %}
+                <article class="order-card">
+                    <div class="oc-head">
+                        <div class="oc-order">
+                            <span class="oc-label">Order Number</span>
+                            <span class="oc-number">#{{ order.id }}</span>
+                        </div>
+                        <span class="status-badge status-{{ order.status }}">{{ order.status.title() }}</span>
+                    </div>
+                    <div class="oc-body">
+                        <div class="oc-field">
+                            <span class="oc-label">Date</span>
+                            <span class="oc-value">{{ order.created_at.strftime('%b %d, %Y') }}</span>
+                        </div>
+                        <div class="oc-field">
+                            <span class="oc-label">Total</span>
+                            <span class="oc-value oc-total">{{ order.total | money }}</span>
+                        </div>
+                    </div>
+                    <a class="btn btn-primary btn-block" href="{{ url_for('order.order_detail', order_id=order.id) }}">View Details</a>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <span class="empty-emoji">📦</span>
+                <h3>No orders yet</h3>
+                <p>When you place an order it will appear here.</p>
+                <a class="btn btn-primary" href="{{ url_for('product.products') }}">Start Shopping</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Quick stats -->
+        <aside class="profile-side">
+            <div class="stat-card">
+                <span class="stat-label">Orders</span>
+                <strong class="stat-value">{{ order_count }}</strong>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Wishlist</span>
+                <strong class="stat-value">{{ wishlist_count }}</strong>
+            </div>
+            <a class="btn btn-outline btn-block" href="{{ url_for('product.recommendations') }}">Recommended For You</a>
+            <a class="btn btn-outline btn-block" href="{{ url_for('auth.wishlist') }}">View Wishlist</a>
+            <a class="btn btn-light btn-block" href="{{ url_for('order.orders') }}">Order History</a>
+        </aside>
+    </div>
+</section>
+{% endblock %}

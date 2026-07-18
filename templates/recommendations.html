@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "macros.html" import product_card %}
+
+{% block title %}Recommended For You — AIShopzone{% endblock %}
+
+{% block content %}
+<section class="recommendations container">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('product.index') }}">Home</a> / <span>Recommended For You</span>
+    </nav>
+
+    <div class="section-head">
+        <h1 class="section-title">Recommended For You</h1>
+        <span class="rec-source">
+            {% if source == 'llm' %}✨ Powered by AI{% else %}✨ Curated for you{% endif %}
+        </span>
+    </div>
+    <p class="muted rec-sub">
+        Personalised picks based on what you've viewed, wishlisted and bought.
+    </p>
+
+    {% if products %}
+    <div class="product-grid">
+        {% for p in products %}{{ product_card(p) }}{% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span class="empty-emoji">🔍</span>
+        <h3>No recommendations yet</h3>
+        <p>Browse a few products and we'll start personalising.</p>
+        <a class="btn btn-primary" href="{{ url_for('product.products') }}">Start Shopping</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% from "macros.html" import product_card %}
+
+{% block title %}Shop — AIShopzone{% endblock %}
+
+{% block content %}
+<section class="shop container">
+    <button class="filter-toggle" id="filterToggle">☰ Filters</button>
+
+    <!-- ============ LEFT SIDEBAR ============ -->
+    <aside class="shop-sidebar" id="shopSidebar">
+        <form method="get" action="{{ url_for('product.products') }}" id="filterForm" class="filter-form">
+            {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+            <input type="hidden" name="sort" id="sortInput" value="{{ current_sort }}">
+
+            <div class="filter-head">
+                <h3>Filters</h3>
+                <a href="{{ url_for('product.products') }}" class="clear-filters">Clear all</a>
+            </div>
+
+            <!-- Category -->
+            <div class="filter-group">
+                <h4>Category</h4>
+                {% for c in categories %}
+                <label class="check">
+                    <input type="checkbox" name="category" value="{{ c.name }}" {% if c.checked %}checked{% endif %}>
+                    <span>{{ c.name }}</span>
+                    <em>{{ c.count }}</em>
+                </label>
+                {% endfor %}
+            </div>
+
+            <!-- Price -->
+            <div class="filter-group">
+                <h4>Price</h4>
+                <div class="price-values">
+                    <span id="priceMinLabel">{{ selected_min | money0 }}</span>
+                    <span id="priceMaxLabel">{{ selected_max | money0 }}</span>
+                </div>
+                <div class="price-slider" id="priceSlider" role="group" aria-label="Price range">
+                    <div class="slider-track"><div class="slider-range" id="sliderRange"></div></div>
+                    <input type="range" id="priceMin" min="{{ price_floor }}" max="{{ price_ceil }}" value="{{ '%.0f' % selected_min }}" aria-label="Minimum price">
+                    <input type="range" id="priceMax" min="{{ price_floor }}" max="{{ price_ceil }}" value="{{ '%.0f' % selected_max }}" aria-label="Maximum price">
+                </div>
+                <input type="hidden" name="min_price" id="minPriceInput" value="{{ '%.0f' % selected_min }}">
+                <input type="hidden" name="max_price" id="maxPriceInput" value="{{ '%.0f' % selected_max }}">
+            </div>
+
+            <!-- Rating -->
+            <div class="filter-group">
+                <h4>Rating</h4>
+                <label class="radio"><input type="radio" name="rating" value="" {% if not selected_rating %}checked{% endif %}><span>All ratings</span></label>
+                <label class="radio"><input type="radio" name="rating" value="4" {% if selected_rating == 4 %}checked{% endif %}><span>4★ &amp; up</span></label>
+                <label class="radio"><input type="radio" name="rating" value="3" {% if selected_rating == 3 %}checked{% endif %}><span>3★ &amp; up</span></label>
+                <label class="radio"><input type="radio" name="rating" value="2" {% if selected_rating == 2 %}checked{% endif %}><span>2★ &amp; up</span></label>
+            </div>
+
+            <!-- Availability -->
+            <div class="filter-group">
+                <h4>Availability</h4>
+                <label class="check">
+                    <input type="checkbox" name="in_stock" value="1" {% if in_stock %}checked{% endif %}>
+                    <span>In stock only</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+        </form>
+    </aside>
+
+    <!-- ============ RIGHT MAIN ============ -->
+    <div class="shop-main" id="shopMain">
+        {% include "products_grid.html" %}
+    </div>
+</section>
+{% endblock %}

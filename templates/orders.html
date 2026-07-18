@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders — AIShopzone{% endblock %}
+
+{% block content %}
+<section class="orders container">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('product.index') }}">Home</a> / <span>My Orders</span>
+    </nav>
+
+    <h1 class="cart-title">My Orders</h1>
+
+    {% if not orders %}
+    <div class="empty-state">
+        <span class="empty-emoji">📦</span>
+        <h3>You haven't placed any orders yet</h3>
+        <p>When you do, they'll show up here.</p>
+        <a class="btn btn-primary" href="{{ url_for('product.products') }}">Start Shopping</a>
+    </div>
+    {% else %}
+
+    <div class="order-grid">
+        {% for order in orders %}
+        <article class="order-card">
+            <div class="oc-head">
+                <div class="oc-order">
+                    <span class="oc-label">Order Number</span>
+                    <span class="oc-number">#{{ order.id }}</span>
+                </div>
+                <span class="status-badge status-{{ order.status }}">{{ order.status.title() }}</span>
+            </div>
+
+            <div class="oc-body">
+                <div class="oc-field">
+                    <span class="oc-label">Date</span>
+                    <span class="oc-value">{{ order.created_at.strftime('%b %d, %Y') }}</span>
+                </div>
+                <div class="oc-field">
+                    <span class="oc-label">Items</span>
+                    <span class="oc-value">
+                        <span class="oc-thumbs">
+                            {% for oi in order._items[:4] %}
+                            <img src="{{ product_image_url(oi.product) }}" alt="{{ oi.product.name }}">
+                            {% endfor %}
+                        </span>
+                        {{ order._items|length }} item{{ 's' if order._items|length != 1 else '' }}
+                    </span>
+                </div>
+                <div class="oc-field">
+                    <span class="oc-label">Total</span>
+                    <span class="oc-value oc-total">{{ order.total | money }}</span>
+                </div>
+            </div>
+
+            <a class="btn btn-primary btn-block" href="{{ url_for('order.order_detail', order_id=order.id) }}">View Details</a>
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

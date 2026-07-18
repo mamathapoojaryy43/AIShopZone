@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist — AIShopzone{% endblock %}
+
+{% block content %}
+<section class="wishlist container">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('product.index') }}">Home</a> / <span>Wishlist</span>
+    </nav>
+
+    <h1 class="cart-title">My Wishlist</h1>
+
+    {% if not products %}
+    <div class="empty-state wishlist-empty">
+        <svg class="empty-illustration" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+        </svg>
+        <h3>Your wishlist is empty</h3>
+        <p>Tap the heart on any product to save it here for later.</p>
+        <a class="btn btn-primary" href="{{ url_for('product.products') }}">Browse Products</a>
+    </div>
+    {% else %}
+
+    <div class="wishlist-grid">
+        {% for product in products %}
+        <article class="wishlist-card">
+            <a class="wl-thumb" href="{{ url_for('product.product_detail', product_id=product.id) }}">
+                <img src="{{ product_image_url(product) }}" alt="{{ product.name }}" loading="lazy">
+                {% if product.stock and product.stock > 0 %}
+                    <span class="badge badge-in">In Stock</span>
+                {% else %}
+                    <span class="badge badge-out">Sold Out</span>
+                {% endif %}
+            </a>
+
+            <div class="wl-info">
+                <span class="wl-cat">{{ product.category }}</span>
+                <h3 class="wl-name">
+                    <a href="{{ url_for('product.product_detail', product_id=product.id) }}">{{ product.name }}</a>
+                </h3>
+                <div class="wl-bottom">
+                    <span class="price">{{ product.price | money }}</span>
+                    <span class="rating">★ {{ '%.1f' % product.rating }}</span>
+                </div>
+            </div>
+
+            <div class="wl-actions">
+                <form method="post" action="{{ url_for('auth.wishlist_move') }}">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button type="submit" class="btn btn-primary btn-sm btn-block">Move to Cart</button>
+                </form>
+                <form method="post" action="{{ url_for('auth.wishlist_toggle') }}">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button type="submit" class="btn btn-outline btn-sm btn-block">Remove</button>
+                </form>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

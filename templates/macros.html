@@ -1,0 +1,29 @@
+{% macro product_card(product, variant='') %}
+{% set saved = product.id in wishlist_ids %}
+<article class="product-card {{ variant }}">
+    <div class="product-media">
+        <img src="{{ product_image_url(product) }}" alt="{{ product.name }}" loading="lazy">
+        <button class="icon-btn wishlist-btn{% if saved %} active{% endif %}" data-product="{{ product.id }}" title="{{ 'Remove from' if saved else 'Add to' }} wishlist" aria-label="{{ 'Remove from' if saved else 'Add to' }} wishlist" aria-pressed="{{ 'true' if saved else 'false' }}">
+            <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        </button>
+        {% if product.stock and product.stock > 0 %}
+            <span class="badge badge-in">In Stock</span>
+        {% else %}
+            <span class="badge badge-out">Sold Out</span>
+        {% endif %}
+        <div class="quick-add">
+            <button class="btn btn-primary btn-sm quick-add-btn" data-product="{{ product.id }}">Quick Add +</button>
+        </div>
+    </div>
+    <div class="product-info">
+        <span class="product-cat">{{ product.category }}</span>
+        <h3 class="product-name">
+            <a href="{{ url_for('product.product_detail', product_id=product.id) if has_endpoint('product.product_detail') else '#' }}">{{ product.name }}</a>
+        </h3>
+        <div class="product-bottom">
+            <span class="price">{{ product.price | money }}</span>
+            <span class="rating">★ {{ '%.1f' % product.rating }}</span>
+        </div>
+    </div>
+</article>
+{% endmacro %}

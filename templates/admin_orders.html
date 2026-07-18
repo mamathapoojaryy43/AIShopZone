@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Orders — Admin{% endblock %}
+
+{% block content %}
+<section class="admin container">
+    <a class="continue" href="{{ url_for('admin.dashboard') }}">← Dashboard</a>
+    <h1 class="cart-title">Orders</h1>
+
+    <div class="data-table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>#</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td>#{{ o.id }}</td>
+                    <td>{{ o.full_name or '—' }}</td>
+                    <td>{{ o.created_at.strftime('%b %d, %Y') }}</td>
+                    <td>{{ o._item_count }}</td>
+                    <td>{{ o.total | money }}</td>
+                    <td><span class="status-badge status-{{ o.status }}">{{ o.status.title() }}</span></td>
+                    <td><a class="btn btn-light btn-sm" href="{{ url_for('admin.admin_order_detail', order_id=o.id) }}">View</a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="admin-empty">No orders yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

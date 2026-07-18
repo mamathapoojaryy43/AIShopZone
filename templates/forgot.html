@@ -1,0 +1,21 @@
+{% extends "auth_base.html" %}
+
+{% block title %}Forgot Password — AIShopzone{% endblock %}
+
+{% block auth_content %}
+    <div class="auth-brand">
+        <a class="brand" href="{{ url_for('product.index') }}"><span class="brand-mark">AI</span>Shopzone</a>
+    </div>
+    <h1>Reset password</h1>
+    <p class="auth-sub">Enter your email and we'll send a reset link</p>
+
+    <form method="post" action="{{ url_for('auth.forgot') }}" novalidate>
+        <div class="auth-field">
+            <label for="email">Email</label>
+            <input class="auth-input" type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <button class="btn-auth" type="submit">Send Reset Link</button>
+    </form>
+
+    <p class="auth-switch"><a href="{{ url_for('auth.login') }}">← Back to login</a></p>
+{% endblock %}

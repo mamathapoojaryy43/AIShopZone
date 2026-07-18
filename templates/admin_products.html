@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Products — Admin{% endblock %}
+
+{% block content %}
+<section class="admin container">
+    <div class="admin-head">
+        <div>
+            <h1 class="cart-title">Products</h1>
+            <p class="muted">{{ products | length }} product{{ '' if products | length == 1 else 's' }}</p>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('admin.product_new') }}">+ New Product</a>
+    </div>
+
+    <form class="admin-toolbar" method="get" action="{{ url_for('admin.products') }}">
+        <input type="search" name="q" value="{{ q or '' }}" placeholder="Search products…" aria-label="Search products">
+        <button type="submit" class="btn btn-outline btn-sm">Search</button>
+        {% if q %}<a class="btn btn-light btn-sm" href="{{ url_for('admin.products') }}">Clear</a>{% endif %}
+    </form>
+
+    <div class="data-table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Image</th><th>Name</th><th>Category</th>
+                    <th>Price</th><th>Stock</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>
+                        <img class="thumb-sm" src="{{ product_image_url(p) }}" alt="{{ p.name }}">
+                    </td>
+                    <td>{{ p.name }}</td>
+                    <td>{{ p.category }}</td>
+                    <td>{{ p.price | money }}</td>
+                    <td>
+                        {% if p.stock and p.stock > 0 %}{{ p.stock }}{% else %}
+                        <span class="badge badge-out">Out</span>
+                        {% endif %}
+                    </td>
+                    <td class="row-actions">
+                        <a class="btn btn-light btn-sm" href="{{ url_for('admin.product_edit', product_id=p.id) }}">Edit</a>
+                        <form method="post" action="{{ url_for('admin.product_delete', product_id=p.id) }}" onsubmit="return confirm('Delete this product?');">
+                            <button type="submit" class="btn btn-outline btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="admin-empty">No products found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

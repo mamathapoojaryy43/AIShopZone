@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% from "macros.html" import product_card %}
+
+{% block title %}AIShopzone — Discover Products You'll Love{% endblock %}
+
+{% block content %}
+<!-- ============ HERO ============ -->
+<section class="hero">
+    <div class="hero-inner container">
+        <div class="hero-text">
+            <span class="hero-eyebrow">🌟 New Season Collection</span>
+            <h1>Discover Products <span class="accent">You'll Love</span></h1>
+            <p>Smart, AI-curated shopping with thousands of products across every category. Find exactly what you need — fast, secure, and delivered to your door.</p>
+            <div class="hero-cta">
+                <a class="btn btn-primary btn-lg" href="{{ url_for('product.products') }}">Shop Now</a>
+                <a class="btn btn-outline btn-lg" href="{{ url_for('product.index') }}#new-arrivals">Explore Collection</a>
+            </div>
+            <div class="hero-stats">
+                <div><strong>50K+</strong><span>Happy Customers</span></div>
+                <div><strong>10K+</strong><span>Products</span></div>
+                <div><strong>4.8★</strong><span>Average Rating</span></div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <img class="hero-img" src="{{ url_for('static', filename='images/banners/hero.jpg') }}" alt="Happy shopping">
+            {% for p in floating %}
+            <div class="floating-card fc{{ loop.index }}">
+                <img src="{{ product_image_url(p) }}" alt="{{ p.name }}">
+                <div class="fc-text">
+                    <span class="fc-name">{{ p.name }}</span>
+                    <span class="fc-price">{{ p.price | money }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ============ TRUST BADGES ============ -->
+<section class="trust container">
+    <div class="trust-card">
+        <span class="trust-ico">🚚</span>
+        <div><h4>Free Shipping</h4><p>On orders over ₹499</p></div>
+    </div>
+    <div class="trust-card">
+        <span class="trust-ico">🔒</span>
+        <div><h4>Secure Payment</h4><p>100% protected checkout</p></div>
+    </div>
+    <div class="trust-card">
+        <span class="trust-ico">↩️</span>
+        <div><h4>Easy Returns</h4><p>30-day money back</p></div>
+    </div>
+    <div class="trust-card">
+        <span class="trust-ico">💬</span>
+        <div><h4>24/7 Support</h4><p>We're here to help</p></div>
+    </div>
+</section>
+
+<!-- ============ SHOP BY CATEGORY ============ -->
+<section class="section container" id="categories">
+    <div class="section-head">
+        <h2 class="section-title">Shop by Category</h2>
+        <a class="view-all" href="{{ url_for('product.products') }}">View All →</a>
+    </div>
+    <div class="category-row">
+        {% for cat in categories %}
+        <a class="category-card" href="{{ url_for('product.products', category=cat.name) }}" aria-label="Shop {{ cat.name }} ({{ cat.count }} items)">
+            <div class="category-media">
+                <img src="{{ category_image_url(cat.name) }}" alt="{{ cat.name }}" loading="lazy">
+            </div>
+            <h3>{{ cat.name }}</h3>
+            <span class="cat-count">{{ cat.count }} items</span>
+            <span class="shop-now">Shop Now →</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ============ NEW ARRIVALS ============ -->
+<section class="section container" id="new-arrivals">
+    <div class="section-head">
+        <h2 class="section-title">New Arrivals</h2>
+        <a class="view-all" href="{{ url_for('product.products') }}">View All →</a>
+    </div>
+    <div class="product-grid">
+        {% for p in new_arrivals %}
+            {{ product_card(p) }}
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ============ BEST SELLERS ============ -->
+<section class="section container" id="best-sellers">
+    <div class="section-head">
+        <h2 class="section-title">Best Sellers</h2>
+        <a class="view-all" href="{{ url_for('product.products') }}">View All →</a>
+    </div>
+    <div class="product-grid product-grid--lg">
+        {% for p in best_sellers %}
+            {{ product_card(p, 'product-card--lg') }}
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ============ RECOMMENDED FOR YOU ============ -->
+<section class="section container">
+    <div class="section-head">
+        <h2 class="section-title">Recommended For You</h2>
+        <a class="view-all" href="{{ url_for('product.recommendations') if current_user.is_authenticated else url_for('product.products') }}">View All →</a>
+    </div>
+    <div class="product-grid">
+        {% for p in recommended %}
+            {{ product_card(p) }}
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ============ CUSTOMERS ALSO BOUGHT ============ -->
+<section class="section container">
+    <div class="section-head">
+        <h2 class="section-title">Customers Also Bought</h2>
+        <a class="view-all" href="{{ url_for('product.products') }}">View All →</a>
+    </div>
+    <div class="product-grid">
+        {% for p in also_bought %}
+            {{ product_card(p) }}
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ============ PROMO BANNER ============ -->
+<section class="container">
+    <div class="promo" style="background-image:url('{{ url_for('static', filename='images/banners/promo.jpg') }}')">
+        <div class="promo-content">
+            <span class="promo-tag">⚡ Limited Time</span>
+            <h2>Mega Summer Sale</h2>
+            <p>Up to <strong>50% OFF</strong> on selected items. Don't miss out!</p>
+            <a class="btn btn-light btn-lg" href="{{ url_for('product.products') }}">Shop the Sale</a>
+        </div>
+        <div class="countdown" id="countdown" aria-label="Offer countdown">
+            <div><span id="cd-days">00</span><small>days</small></div>
+            <div><span id="cd-hours">00</span><small>hrs</small></div>
+            <div><span id="cd-mins">00</span><small>min</small></div>
+            <div><span id="cd-secs">00</span><small>sec</small></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 3-day countdown for the promotional banner.
+    (function () {
+        var el = document.getElementById("countdown");
+        if (!el) return;
+        var end = Date.now() + 3 * 24 * 60 * 60 * 1000;
+        var pad = function (n) { return String(n).padStart(2, "0"); };
+        function tick() {
+            var diff = Math.max(0, end - Date.now());
+            var d = Math.floor(diff / 86400000);
+            var h = Math.floor((diff % 86400000) / 3600000);
+            var m = Math.floor((diff % 3600000) / 60000);
+            var s = Math.floor((diff % 60000) / 1000);
+            document.getElementById("cd-days").textContent = pad(d);
+            document.getElementById("cd-hours").textContent = pad(h);
+            document.getElementById("cd-mins").textContent = pad(m);
+            document.getElementById("cd-secs").textContent = pad(s);
+        }
+        tick();
+        setInterval(tick, 1000);
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AIShopzone — modern AI-powered shopping.">
+    <title>{% block title %}AIShopzone{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <!-- Announcement bar -->
+    <div class="announce">
+        <span>🚚 Free shipping on orders over ₹499 &nbsp;•&nbsp; ↩️ 30-day easy returns &nbsp;•&nbsp; ⭐ Trusted by 50,000+ shoppers</span>
+    </div>
+
+    <header class="site-header" id="siteHeader">
+        <nav class="navbar container" aria-label="Primary">
+            <a class="brand" href="{{ url_for('product.index') }}">
+                <span class="brand-mark">AI</span>Shopzone
+            </a>
+
+            <ul class="nav-menu" id="primaryNav">
+                <li><a href="{{ url_for('product.index') }}"{% if request.endpoint == 'product.index' %} aria-current="page"{% endif %}>Home</a></li>
+                <li><a href="{{ url_for('product.products') }}"{% if request.endpoint == 'product.products' %} aria-current="page"{% endif %}>Shop</a></li>
+                <li><a href="{{ url_for('product.index') }}#new-arrivals">New Arrivals</a></li>
+                <li><a href="{{ url_for('product.index') }}#best-sellers">Best Sellers</a></li>
+                <li><a href="{{ url_for('product.index') }}#categories">Categories</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+
+            <div class="nav-icons">
+                <button class="icon-btn" id="searchToggle" aria-label="Search">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+                <a class="icon-btn wishlist-icon" href="{{ url_for('auth.wishlist') if has_endpoint('auth.wishlist') else '#' }}" aria-label="Wishlist">
+                    <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                    <span class="wishlist-badge" id="wishlistBadge">{{ wishlist_count }}</span>
+                </a>
+                <a class="icon-btn" href="{{ url_for('auth.profile') if has_endpoint('auth.profile') else (url_for('auth.login') if has_endpoint('auth.login') else '#') }}" aria-label="Account">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+                </a>
+                <a class="icon-btn cart-icon" href="{{ url_for('cart.cart') if has_endpoint('cart') else '#' }}" aria-label="Cart">
+                    <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 3h3l2.5 12h11l2-8H6"/></svg>
+                    <span class="cart-badge" id="cartBadge">{{ cart_count }}</span>
+                </a>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="primaryNav">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Search overlay -->
+    <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Search products">
+        <div class="search-box container">
+            <svg viewBox="0 0 24 24" class="search-ico"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <form action="{{ url_for('product.products') }}" method="get">
+                <input type="search" name="q" placeholder="Search for products, brands and more..." aria-label="Search products" autofocus>
+            </form>
+            <button class="search-close" id="searchClose" aria-label="Close search">✕</button>
+        </div>
+    </div>
+
+    <main class="main-content" id="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages container fade-in">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-newsletter">
+                    <h3 class="footer-brand"><span class="brand-mark">AI</span>Shopzone</h3>
+                    <p>Subscribe to get special offers, free giveaways and once-in-a-lifetime deals.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Enter your email" required>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                </div>
+                <div class="footer-cols">
+                    <div>
+                        <h4>Shop</h4>
+                        <ul>
+                            <li><a href="{{ url_for('product.products') }}">All Products</a></li>
+                            <li><a href="{{ url_for('product.index') }}#new-arrivals">New Arrivals</a></li>
+                            <li><a href="{{ url_for('product.index') }}#best-sellers">Best Sellers</a></li>
+                            <li><a href="{{ url_for('product.index') }}#categories">Categories</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Account</h4>
+                        <ul>
+                            {% if current_user.is_authenticated %}
+                                <li><a href="{{ url_for('auth.profile') if has_endpoint('auth.profile') else '#' }}">My Profile</a></li>
+                                <li><a href="{{ url_for('order.orders') if has_endpoint('order') else '#' }}">My Orders</a></li>
+                            {% else %}
+                                <li><a href="{{ url_for('auth.login') if has_endpoint('auth.login') else '#' }}">Login</a></li>
+                                <li><a href="{{ url_for('auth.signup') if has_endpoint('auth.signup') else '#' }}">Sign Up</a></li>
+                            {% endif %}
+                            <li><a href="{{ url_for('auth.wishlist') if has_endpoint('auth.wishlist') else '#' }}">Wishlist</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Shipping & Delivery</a></li>
+                            <li><a href="#">Returns & Refunds</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-contact">
+                <span>📍 42 MG Road, Bangalore, Karnataka 560001</span>
+                <span>✉️ support@aishopzone.com</span>
+                <span>📞 +91 98765 43210</span>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook">f</a>
+                    <a href="#" aria-label="Instagram">ig</a>
+                    <a href="#" aria-label="Twitter">X</a>
+                    <a href="#" aria-label="YouTube">▶</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container footer-bottom-inner">
+                <p>&copy; 2026 AIShopzone. All rights reserved.</p>
+                <div class="pay-methods">
+                    <span>VISA</span><span>MC</span><span>RuPay</span><span>UPI</span><span>COD</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        window.isAuthed = {{ 'true' if current_user.is_authenticated else 'false' }};
+        window.loginUrl = "{{ url_for('auth.login') }}";
+        window.cartUrl = "{{ url_for('cart.cart') }}";
+        window.toggleWishlistUrl = "{{ url_for('auth.wishlist_toggle') }}";
+        window.PLACEHOLDER_IMG = "{{ url_for('static', filename='images/placeholder.jpg') }}";
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

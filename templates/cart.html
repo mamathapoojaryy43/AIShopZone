@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Your Cart — AIShopzone{% endblock %}
+
+{% block content %}
+<section class="cart container">
+    <nav class="breadcrumb">
+        <a href="{{ url_for('product.index') }}">Home</a> / <span>Shopping Cart</span>
+    </nav>
+
+    <h1 class="cart-title">Your Cart</h1>
+
+    {% if not items %}
+    <div class="empty-state">
+        <span class="empty-emoji">🛒</span>
+        <h3>Your cart is empty</h3>
+        <p>Looks like you haven't added anything yet.</p>
+        <a class="btn btn-primary" href="{{ url_for('product.products') }}">Start Shopping</a>
+    </div>
+    {% else %}
+
+    <div class="cart-layout">
+        <!-- Items -->
+        <div class="cart-items">
+            {% for row in items %}
+            <div class="cart-item">
+                <a class="cart-thumb" href="{{ url_for('product.product_detail', product_id=row.product.id) }}">
+                    <img src="{{ product_image_url(row.product) }}" alt="{{ row.product.name }}">
+                </a>
+                <div class="cart-info">
+                    <a class="cart-name" href="{{ url_for('product.product_detail', product_id=row.product.id) }}">{{ row.product.name }}</a>
+                    <span class="cart-cat">{{ row.product.category }}</span>
+                    <span class="cart-unit">{{ row.product.price | money }} each</span>
+                </div>
+
+                <form class="qty-form" method="post" action="{{ url_for('cart.update') }}">
+                    <div class="qty stepper">
+                        <button type="button" class="qty-btn qminus" aria-label="Decrease">−</button>
+                        <input type="number" name="quantity" class="qty-input" value="{{ row.cart.quantity }}" min="1" max="{{ row.product.stock or 99 }}">
+                        <button type="button" class="qty-btn qplus" aria-label="Increase">+</button>
+                    </div>
+                    <input type="hidden" name="product_id" value="{{ row.product.id }}">
+                </form>
+
+                <div class="cart-line">{{ row.line_total | money }}</div>
+
+                <form class="remove-form" method="post" action="{{ url_for('cart.remove') }}">
+                    <input type="hidden" name="product_id" value="{{ row.product.id }}">
+                    <button type="submit" class="remove-btn" aria-label="Remove">✕</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Summary -->
+        <aside class="cart-summary">
+            <h2>Order Summary</h2>
+
+            <form class="coupon-form" method="post" action="{{ url_for('cart.coupon') }}">
+                <input type="text" name="code" placeholder="Coupon code" value="{{ coupon or '' }}" aria-label="Coupon code">
+                <button type="submit" class="btn btn-outline btn-sm">Apply</button>
+            </form>
+            {% if coupon %}
+                <p class="coupon-applied">✓ Coupon <strong>{{ coupon }}</strong> applied</p>
+            {% endif %}
+
+            <div class="summary-rows">
+                <div class="srow"><span>Subtotal</span><span>{{ subtotal | money }}</span></div>
+                {% if discount > 0 %}
+                <div class="srow discount"><span>Discount</span><span>−{{ discount | money }}</span></div>
+                {% endif %}
+                <div class="srow"><span>Shipping</span><span>{{ 'Free' if shipping == 0 else (shipping | money) }}</span></div>
+                <div class="srow"><span>Tax ({{ '%.0f' % (tax_rate*100) }}%)</span><span>{{ tax | money }}</span></div>
+                <div class="srow total"><span>Grand Total</span><span>{{ grand | money }}</span></div>
+            </div>
+
+            <a class="btn btn-primary btn-lg btn-block" href="{{ url_for('order.checkout') if has_endpoint('order.checkout') else '#' }}">Proceed to Checkout</a>
+            <a class="continue" href="{{ url_for('product.products') }}">← Continue shopping</a>
+        </aside>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Cart page: stepper + auto-submit qty changes
+    document.querySelectorAll(".cart-item").forEach(function (item) {
+        var form = item.querySelector(".qty-form");
+        var input = item.querySelector(".qty-input");
+        var max = parseInt(input.getAttribute("max"), 10) || 99;
+        item.querySelector(".qminus").addEventListener("click", function () {
+            var v = parseInt(input.value, 10) || 1; if (v > 1) { input.value = v - 1; form.submit(); }
+        });
+        item.querySelector(".qplus").addEventListener("click", function () {
+            var v = parseInt(input.value, 10) || 1; if (v < max) { input.value = v + 1; form.submit(); }
+        });
+    });
+</script>
+{% endblock %}

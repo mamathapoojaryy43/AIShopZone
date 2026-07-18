@@ -1,0 +1,46 @@
+{% from "macros.html" import product_card %}
+{# Fragment rendered both inline (products.html) and via AJAX for skeleton loading. #}
+
+<div class="shop-toolbar">
+    <div class="result-count">
+        <strong>{{ total }}</strong> product{{ '' if total == 1 else 's' }}{% if q %} for “{{ q }}”{% endif %}
+    </div>
+    <div class="sort-wrap">
+        <label for="sortSelect">Sort by</label>
+        <select id="sortSelect">
+            <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest</option>
+            <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+            <option value="rating_desc" {% if current_sort == 'rating_desc' %}selected{% endif %}>Best Rated</option>
+        </select>
+    </div>
+</div>
+
+{% if products %}
+<div class="product-grid">
+    {% for p in products %}
+        {{ product_card(p) }}
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <span class="empty-emoji">🔍</span>
+    <h3>No products found</h3>
+    <p>Try adjusting your filters or search.</p>
+    <a class="btn btn-primary" href="{{ url_for('product.products') }}">Reset filters</a>
+</div>
+{% endif %}
+
+{% if pages and (prev_url or next_url) %}
+<nav class="pagination" aria-label="Pagination">
+    {% if prev_url %}<a href="{{ prev_url }}" class="page-nav">‹ Prev</a>{% endif %}
+    {% for pg in pages %}
+        {% if pg.num %}
+            <a href="{{ pg.url }}" class="page-link {% if pg.active %}active{% endif %}">{{ pg.num }}</a>
+        {% else %}
+            <span class="page-ellipsis">…</span>
+        {% endif %}
+    {% endfor %}
+    {% if next_url %}<a href="{{ next_url }}" class="page-nav">Next ›</a>{% endif %}
+</nav>
+{% endif %}
