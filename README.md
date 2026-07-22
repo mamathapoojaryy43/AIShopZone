@@ -1,8 +1,5 @@
 # 🛍️ AIShopzone
 
-## 🚀 Live Demo
-🔗 https://your-live-demo-link.com
-
 AIShopzone is an AI-powered e-commerce platform built with Flask and MySQL. It offers secure user authentication, intelligent product recommendations, shopping cart, checkout, order management, and a complete admin dashboard, localized for India with ₹ pricing and GST support.
 
 ## ✨ Features
